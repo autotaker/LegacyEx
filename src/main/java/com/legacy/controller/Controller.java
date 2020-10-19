@@ -7,8 +7,15 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.legacy.Context;
+import com.legacy.Dict;
+import com.legacy.Messages;
 import com.legacy.Query;
 import com.legacy.action.AuthAction;
+import com.legacy.form.AbsForm;
+import com.legacy.form.LoginForm;
+import com.legacy.form.LogoutForm;
+import com.legacy.form.UserSettingsForm;
 import com.legacy.model.AnonymousUser;
 import com.legacy.model.User;
 
@@ -16,54 +23,73 @@ public class Controller {
 
 	public void dispatch(HttpSession session, String method, Query query, HttpServletResponse resp) throws IOException {
 		String action = query.getAction();
+		resp.setContentType("text/html; charset=UTF-8");
 		PrintWriter writer = resp.getWriter();
-		User user = (User)session.getAttribute("user");
-		if( user == null ) {
-			user = new AnonymousUser();
-		}
+		Context ctx = new Context();
+		final User user = Optional.ofNullable((User) session.getAttribute("user"))
+				.orElseGet(() -> new AnonymousUser());
+		ctx.setLang(user.getLang());
 
-		if( "*".equals(action)) {
-			resp.setContentType("text/html; charset=UTF-8");
+		if ("*".equals(action)) {
 			writeHeader(writer);
-			String greeting = "Hi " + user.getUsername() + " san!";
+			String greeting = Dict.get(ctx.getLang(), "GREETING", Messages.GREETING, user.getUsername());
 			writer.println("<h1>" + greeting + "</h1>");
-			if( ! user.isAuthed() ) {
-				writer.println("<p>");
-				writer.println("<a href=\"?action=login\">login</a>");
-				writer.println("</p>");
+			if (user.isAuthed()) {
+				AbsForm form = new LogoutForm(ctx);
+				form.writeForm(writer);
+				writer.println("<a href=\"?action=user_settings\">"
+						+ Dict.get(ctx.getLang(), "USER_SETTINGS", Messages.USER_SETTINGS)
+						+ "</a>");
 			} else {
-				writer.println("<form method=\"POST\" action=\"?action=logout\">");
 				writer.println("<p>");
-				writer.println("<input type=\"submit\" value=\"Logout\">");
+				writer.println("<a href=\"?action=login\">"
+						+ Dict.get(ctx.getLang(), "LOGIN", Messages.LOGIN)
+						+ "</a>");
 				writer.println("</p>");
-				writer.println("</form>");
 			}
 			writeFooter(writer);
 			writer.flush();
-		} else if( "login".equals(action)) {
-			Optional<String> username = query.get("user.name");
-			if( user.isAuthed() ) {
+			return;
+		} else if ("login".equals(action) && !user.isAuthed()) {
+			LoginForm form = new LoginForm(ctx);
+			form.input(query);
+			Optional<User> newUser = form.getUsername()
+					.flatMap(name -> new AuthAction().login(name));
+			if (newUser.isPresent()) {
+				session.setAttribute("user", newUser.get());
 				resp.sendRedirect("./");
-			} else if( username.isPresent() && "POST".equals(method)) {
-				user = new AuthAction().login(username.get());
-				session.setAttribute("user", user);
-				resp.sendRedirect("./");
+				return;
 			} else {
-				resp.setContentType("text/html; charset=UTF-8");
 				writeHeader(writer);
-				writer.println("<form method=\"POST\">");
-				writer.println("<p>");
-				writer.println("<label>Username:</label>");
-				writer.println("<input name=\"user.name\">");
-				writer.println("<input type=\"hidden\" name=\"action\" value=\"login\">");
-				writer.println("</p>");
-				writer.println("<input type=\"submit\" value=\"Login\">");
-				writer.println("</form>");
+				form.writeForm(writer);
 				writeFooter(writer);
 				writer.flush();
+				return;
+
 			}
-		} else if( "logout".equals(action) && "POST".equals(method)) {
+		} else if ("logout".equals(action) && "POST".equals(method)) {
 			session.invalidate();
+			resp.sendRedirect("./");
+			return;
+		} else if ("user_settings".equals(action) && user.isAuthed()) {
+			UserSettingsForm form = new UserSettingsForm(ctx);
+			if ("POST".equals(method)) {
+				form.input(query);
+				Optional<String> langOpt = form.getLang();
+				langOpt.ifPresent(lang -> {
+					user.setLang(lang);
+				});
+				resp.sendRedirect("./?action=user_settings");
+				return;
+			} else {
+				writeHeader(writer);
+				form.writeForm(writer);
+				writer.println("<a href=\"./\">" + Dict.get(ctx.getLang(), "BACK", Messages.BACK) + "</a>");
+				writeFooter(writer);
+				writer.flush();
+				return;
+			}
+		} else {
 			resp.sendRedirect("./");
 		}
 	}
@@ -77,6 +103,7 @@ public class Controller {
 		writer.println("<!DOCTYPE html>");
 		writer.println("<html>");
 		writer.println("<head>");
+		writer.println("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
 		writer.println("<title>Hello</title>");
 		writer.println("</head>");
 		writer.println("<body>");

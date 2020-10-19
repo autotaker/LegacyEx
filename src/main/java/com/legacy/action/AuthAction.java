@@ -1,15 +1,17 @@
 package com.legacy.action;
 
-import com.legacy.model.AnonymousUser;
+import java.util.Optional;
+
+import com.google.common.base.Strings;
 import com.legacy.model.User;
 
 public class AuthAction {
 
-	public User login(String username) {
-		if("anonymous".equals(username)) {
-			return new AnonymousUser();
+	public Optional<User> login(String username) {
+		if( Strings.isNullOrEmpty(username) || "anonymous".equals(username)) {
+			return Optional.empty();
 		}
-		return new User(username);
+		return Optional.of(new User(username));
 	}
 
 }

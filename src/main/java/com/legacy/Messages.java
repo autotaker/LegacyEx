@@ -11,4 +11,5 @@ public class Messages {
 	public static final String LANG_ENGLISH = "English";
 	public static final String SAVE = "Save";
 	public static final String BACK = "Back";
+	public static final String GLOBAL_CONFIG = "Global Configurations";
 }

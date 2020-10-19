@@ -2,17 +2,24 @@ package com.legacy.controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.legacy.Context;
 import com.legacy.Dict;
+import com.legacy.GlobalConfig;
 import com.legacy.Messages;
 import com.legacy.Query;
 import com.legacy.action.AuthAction;
 import com.legacy.form.AbsForm;
+import com.legacy.form.GlobalConfigEntryForm;
 import com.legacy.form.LoginForm;
 import com.legacy.form.LogoutForm;
 import com.legacy.form.UserSettingsForm;
@@ -20,6 +27,8 @@ import com.legacy.model.AnonymousUser;
 import com.legacy.model.User;
 
 public class Controller {
+	/** ロガー */
+	private static final Logger log = LoggerFactory.getLogger(Controller.class);
 
 	public void dispatch(HttpSession session, String method, Query query, HttpServletResponse resp) throws IOException {
 		String action = query.getAction();
@@ -28,17 +37,25 @@ public class Controller {
 		Context ctx = new Context();
 		final User user = Optional.ofNullable((User) session.getAttribute("user"))
 				.orElseGet(() -> new AnonymousUser());
-		ctx.setLang(user.getLang());
+		if( user.isAuthed() ) {
+			ctx.setLang(user.getLang());
+		} else {
+			ctx.setLang(GlobalConfig.instance().get("DEFAULT_LANGUAGE", "JA"));
+		}
 
+		log.debug("dispatch action = {} method = {}", action, method);
 		if ("*".equals(action)) {
 			writeHeader(writer);
-			String greeting = Dict.get(ctx.getLang(), "GREETING", Messages.GREETING, user.getUsername());
+			String greeting = "Hi " + user.getUsername() + " san";
 			writer.println("<h1>" + greeting + "</h1>");
 			if (user.isAuthed()) {
 				AbsForm form = new LogoutForm(ctx);
 				form.writeForm(writer);
 				writer.println("<a href=\"?action=user_settings\">"
 						+ Dict.get(ctx.getLang(), "USER_SETTINGS", Messages.USER_SETTINGS)
+						+ "</a>");
+				writer.println("<a href=\"?action=global_config\">"
+						+ Dict.get(ctx.getLang(), "GLOBAL_CONFIG", Messages.GLOBAL_CONFIG)
 						+ "</a>");
 			} else {
 				writer.println("<p>");
@@ -65,7 +82,6 @@ public class Controller {
 				writeFooter(writer);
 				writer.flush();
 				return;
-
 			}
 		} else if ("logout".equals(action) && "POST".equals(method)) {
 			session.invalidate();
@@ -89,6 +105,34 @@ public class Controller {
 				writer.flush();
 				return;
 			}
+		} else if( "global_config".equals(action) && user.isAuthed()) {
+			GlobalConfigEntryForm form = new GlobalConfigEntryForm(ctx);
+			if( "POST".equals(method) ) {
+				form.input(query);
+				GlobalConfig.instance().set(form.getKey(), form.getValue());
+			}
+			List<Map.Entry<String,String>> entries = GlobalConfig.instance().loadAll();
+			writeHeader(writer);
+			writer.println("<table>");
+			writer.println("<thead>");
+			writer.println("<tr>");
+			writer.println("<th>Key</th>");
+			writer.println("<th>Value</th>");
+			writer.println("</tr>");
+			writer.println("</thead>");
+			writer.println("<tbody>");
+			for( Map.Entry<String, String> entry : entries) {
+				writer.println("<tr>");
+				writer.println("<td>" + entry.getKey() + "</td>");
+				writer.println("<td>" + entry.getValue() + "</td>");
+				writer.println("</tr>");
+			}
+			writer.println("</tbody>");
+			writer.println("</table>");
+			form.writeForm(writer);
+			writer.println("<a href=\"./\">" + Dict.get(ctx.getLang(), "BACK", Messages.BACK) + "</a>");
+			writeFooter(writer);
+			writer.flush();
 		} else {
 			resp.sendRedirect("./");
 		}

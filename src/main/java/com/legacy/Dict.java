@@ -20,14 +20,14 @@ public class Dict {
 			Context ctx;
 			ctx = new InitialContext();
 			DataSource ds = (DataSource) ctx.lookup("java:comp/env/jdbc/datasource");
-			Connection conn = ds.getConnection();
-			try( Statement stmt = conn.createStatement();
-				ResultSet rs = stmt.executeQuery("SELECT dict_lang, dict_key, dict_value FROM DICT");) {
-				while(rs.next()) {
+			try (Connection conn = ds.getConnection();
+					Statement stmt = conn.createStatement();
+					ResultSet rs = stmt.executeQuery("SELECT dict_lang, dict_key, dict_value FROM DICT");) {
+				while (rs.next()) {
 					String lang = rs.getString("dict_lang");
 					String key = rs.getString("dict_key");
 					String value = rs.getString("dict_value");
-					globalDict.put(key +":" + lang, value);
+					globalDict.put(key + ":" + lang, value);
 				}
 			}
 
@@ -38,8 +38,8 @@ public class Dict {
 	}
 
 	public static String get(String lang, String key, String defaultMessage) {
-		String msg = globalDict.get(key +":" + lang);
-		if( msg == null) {
+		String msg = globalDict.get(key + ":" + lang);
+		if (msg == null) {
 			return defaultMessage;
 		} else {
 			return msg;

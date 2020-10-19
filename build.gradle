@@ -29,6 +29,11 @@ dependencies {
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
     implementation 'com.google.guava:guava:29.0-jre'
     implementation 'com.h2database:h2:1.4.200'
+    implementation 'org.apache.commons:commons-lang3:3.0'
+    implementation 'org.slf4j:slf4j-api:1.7.30'
+    implementation 'ch.qos.logback:logback-classic:1.2.3'
+
+
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.13'

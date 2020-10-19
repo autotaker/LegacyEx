@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +19,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.legacy.controller.Controller;
 public class MainServlet extends HttpServlet {
+	/** ロガー */
+	private static final Logger log = LoggerFactory.getLogger(MainServlet.class);
 
 	public List<String> loadInitSQL() throws IOException {
 		List<String> sqlList = new ArrayList<>();
@@ -32,6 +38,8 @@ public class MainServlet extends HttpServlet {
 				if(line.endsWith(";")) {
 					sqlList.add(sb.toString());
 					sb = new StringBuilder();
+				}else {
+					sb.append('\n');
 				}
 			}
 			String lastSql = sb.toString().trim();
@@ -51,14 +59,17 @@ public class MainServlet extends HttpServlet {
 			Connection conn = ds.getConnection();
 			List<String> sqlList = loadInitSQL();
 			try( Statement stmt = conn.createStatement();) {
-				for(String sql : sqlList) {
-					stmt.addBatch(sql);
+				for( String sql : sqlList) {
+					try {
+						stmt.execute(sql);
+						conn.commit();
+					} catch(SQLException e) {
+						log.error("failed to execute sql", e);
+					}
 				}
-				stmt.executeBatch();
-				conn.commit();
+
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
 	}

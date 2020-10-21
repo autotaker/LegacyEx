@@ -12,4 +12,5 @@ public class Messages {
 	public static final String SAVE = "Save";
 	public static final String BACK = "Back";
 	public static final String GLOBAL_CONFIG = "Global Configurations";
+	public static final String BIRTHDAY = "Birthday";
 }

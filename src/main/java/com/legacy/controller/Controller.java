@@ -89,16 +89,20 @@ public class Controller {
 			return;
 		} else if ("user_settings".equals(action) && user.isAuthed()) {
 			UserSettingsForm form = new UserSettingsForm(ctx);
+			form.setBirthday(user.getBirthday());
 			if ("POST".equals(method)) {
 				form.input(query);
-				Optional<String> langOpt = form.getLang();
-				langOpt.ifPresent(lang -> {
+				form.getLang().ifPresent(lang -> {
 					user.setLang(lang);
+				});
+				form.getBirthday().ifPresent(birthday -> {
+					user.setBirthday(birthday);
 				});
 				resp.sendRedirect("./?action=user_settings");
 				return;
 			} else {
 				writeHeader(writer);
+				writer.println("<h1>" + Dict.get(ctx.getLang(), "USER_SETTINGS", Messages.USER_SETTINGS) + "</h1>");
 				form.writeForm(writer);
 				writer.println("<a href=\"./\">" + Dict.get(ctx.getLang(), "BACK", Messages.BACK) + "</a>");
 				writeFooter(writer);
@@ -113,6 +117,7 @@ public class Controller {
 			}
 			List<Map.Entry<String,String>> entries = GlobalConfig.instance().loadAll();
 			writeHeader(writer);
+				writer.println("<h1>" + Dict.get(ctx.getLang(), "GLOBAL_CONFIG", Messages.GLOBAL_CONFIG) + "</h1>");
 			writer.println("<table>");
 			writer.println("<thead>");
 			writer.println("<tr>");

@@ -2,6 +2,7 @@ package com.legacy.form;
 
 import java.io.PrintWriter;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import com.legacy.Context;
 import com.legacy.Dict;
@@ -31,7 +32,8 @@ public class LoginForm extends AbsForm {
 
 	@Override
 	public void input(Query query) {
-		username = query.get("user.name").orElse(null);
-		super.input(query);
+		query.get("user.name").filter( x -> Pattern.matches("^[a-zA-Z0-9]+$", x)).ifPresent(rawUsername -> {
+			username = rawUsername;
+		});
 	}
 }

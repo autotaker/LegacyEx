@@ -8,9 +8,9 @@ import java.sql.Statement;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -46,7 +46,7 @@ public final class GlobalConfig {
 		try {
 			InitialContext ctx = new InitialContext();
 			dataSource = (DataSource) ctx.lookup("java:comp/env/jdbc/datasource");
-			cache = new HashMap<>();
+			cache = new ConcurrentHashMap<>();
 
 		}catch (NamingException e) {
 			throw new RuntimeException(e);

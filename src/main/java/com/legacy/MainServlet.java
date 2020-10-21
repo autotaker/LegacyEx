@@ -23,27 +23,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.legacy.controller.Controller;
+
 public class MainServlet extends HttpServlet {
 	/** ロガー */
 	private static final Logger log = LoggerFactory.getLogger(MainServlet.class);
 
 	public List<String> loadInitSQL() throws IOException {
 		List<String> sqlList = new ArrayList<>();
-		try(InputStream stream = this.getClass().getResourceAsStream("/init.sql");
-			BufferedReader reader = new BufferedReader(new InputStreamReader(stream));) {
+		try (InputStream stream = this.getClass().getResourceAsStream("/init.sql");
+				BufferedReader reader = new BufferedReader(new InputStreamReader(stream));) {
 			String line;
 			StringBuilder sb = new StringBuilder();
-			while( (line = reader.readLine()) !=null) {
+			while ((line = reader.readLine()) != null) {
 				sb.append(line);
-				if(line.endsWith(";")) {
+				if (line.endsWith(";")) {
 					sqlList.add(sb.toString());
 					sb = new StringBuilder();
-				}else {
+				} else {
 					sb.append('\n');
 				}
 			}
 			String lastSql = sb.toString().trim();
-			if( !lastSql.isEmpty()) {
+			if (!lastSql.isEmpty()) {
 				sqlList.add(lastSql + ';');
 			}
 			return sqlList;
@@ -56,18 +57,17 @@ public class MainServlet extends HttpServlet {
 			Context ctx;
 			ctx = new InitialContext();
 			DataSource ds = (DataSource) ctx.lookup("java:comp/env/jdbc/datasource");
-			Connection conn = ds.getConnection();
 			List<String> sqlList = loadInitSQL();
-			try( Statement stmt = conn.createStatement();) {
-				for( String sql : sqlList) {
+			try (Connection conn = ds.getConnection();
+					Statement stmt = conn.createStatement();) {
+				for (String sql : sqlList) {
 					try {
 						stmt.execute(sql);
 						conn.commit();
-					} catch(SQLException e) {
+					} catch (SQLException e) {
 						log.error("failed to execute sql", e);
 					}
 				}
-
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -82,6 +82,5 @@ public class MainServlet extends HttpServlet {
 		Query query = new Query(req.getParameterMap());
 		controller.dispatch(session, method, query, resp);
 	}
-
 
 }

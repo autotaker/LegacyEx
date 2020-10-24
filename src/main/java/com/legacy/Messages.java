@@ -1,5 +1,13 @@
 package com.legacy;
 
+/**
+ * Dictのデフォルトメッセージを集めたクラスです。
+ * 定数フィールドの名前をキーとしてDictを取得してください。
+ * init.sqlにエントリーを足すと多言語対応できます。
+ *
+ * @author autotaker
+ *
+ */
 public class Messages {
 	public static final String LOGIN = "Login";
 	public static final String LOGOUT = "Logout";

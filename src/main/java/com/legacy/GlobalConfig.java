@@ -19,6 +19,12 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * サーバ設定を管理するクラスです。
+ * Singleton Patternを適用しています。
+ * @author autotaker
+ *
+ */
 public final class GlobalConfig {
 	private static final String UPDATE_ONE_SQL = "MERGE INTO GLOBAL_CONFIG KEY(config_key) VALUES (?, ?)";
 	private static final String SELECT_MANY_SQL = "SELECT config_key, config_value FROM GLOBAL_CONFIG ORDER BY config_key ASC";
@@ -60,6 +66,13 @@ public final class GlobalConfig {
 		return _instance;
 	}
 
+	/**
+	 * GLOBAL_CONFIGテーブルからパラメータを取得します。
+	 * 取得したパラメータは６０秒間キャッシュされます。
+	 * @param key
+	 * @param defaultValue
+	 * @return
+	 */
 	public String get(String key, String defaultValue)  {
 		CacheEntry entry = cache.get(key);
 		if( entry != null && !entry.expired() ) {
@@ -87,6 +100,10 @@ public final class GlobalConfig {
 		}
 	}
 
+	/**
+	 * GLOBAL_CONFIGテーブルの全エントリーをキーの昇順で取得します。
+	 * @return
+	 */
 	public List<Map.Entry<String, String>> loadAll() {
 		try (Connection conn = dataSource.getConnection();
 				Statement stmt = conn.createStatement();
@@ -103,6 +120,11 @@ public final class GlobalConfig {
 		}
 	}
 
+	/**
+	 * GLOBAL_COFIGテーブルにデータを挿入します。
+	 * @param key
+	 * @param value
+	 */
 	public void set(String key, String value) {
 		try (Connection conn = dataSource.getConnection();
 				PreparedStatement ps = conn.prepareStatement(UPDATE_ONE_SQL)) {

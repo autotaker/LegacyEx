@@ -11,6 +11,11 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
+/**
+ * 多言語対応を行うクラスです。
+ * @author autotaker
+ *
+ */
 public class Dict {
 	private static Map<String, String> globalDict;
 
@@ -37,6 +42,16 @@ public class Dict {
 		}
 	}
 
+	/**
+	 * {@code key}と{@code lang}に対応するDICTテーブルのエントリーを返します。 <br>
+	 * 取得ができなかった場合は{@code defaultMessage}を返します。
+	 * @see com.legacy.Messages
+	 *
+	 * @param lang
+	 * @param key
+	 * @param defaultMessage Messagesクラスの定数を使用してください。
+	 * @return
+	 */
 	public static String get(String lang, String key, String defaultMessage) {
 		String msg = globalDict.get(key + ":" + lang);
 		if (msg == null) {
@@ -46,6 +61,19 @@ public class Dict {
 		}
 	}
 
+	/**
+	 * {@code key}と{@code lang}に対応するDICTテーブルのエントリーを返します。<br>
+	 * エントリーはプレースホルダー({0},{1})付きである必要があり、
+	 * プレースホルダーに引数で渡したオブジェクトが置換されます。
+	 * @see com.legacy.Messages
+	 *
+	 * @param lang
+	 * @param key
+	 * @param defaultMessage Messagesクラスの定数を使用してください。
+	 * @param args プレースホルダーのオブジェクト
+	 * @return
+	 *
+	 */
 	public static String get(String lang, String key, String defaultMessage, Object... args) {
 		String message = get(lang, key, defaultMessage);
 		return MessageFormat.format(message, args);

@@ -3,6 +3,11 @@ package com.legacy;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * HTTP Requestのパラメータを保持するクラス
+ * @author autotaker
+ *
+ */
 public class Query {
 
 	private final Map<String, String[]> parameterMap;

@@ -45,6 +45,7 @@ public class Controller {
 
 		log.debug("dispatch action = {} method = {}", action, method);
 		if ("*".equals(action)) {
+			// ホーム画面
 			writeHeader(writer);
 			String greeting = "Hi " + user.getUsername() + " san";
 			writer.println("<h1>" + greeting + "</h1>");
@@ -68,6 +69,7 @@ public class Controller {
 			writer.flush();
 			return;
 		} else if ("login".equals(action) && !user.isAuthed()) {
+			// ログイン画面
 			LoginForm form = new LoginForm(ctx);
 			form.input(query);
 			Optional<User> newUser = form.getUsername()
@@ -84,10 +86,12 @@ public class Controller {
 				return;
 			}
 		} else if ("logout".equals(action) && "POST".equals(method)) {
+			//　ログアウト（画面はなし）
 			session.invalidate();
 			resp.sendRedirect("./");
 			return;
 		} else if ("user_settings".equals(action) && user.isAuthed()) {
+			// ユーザ設定画面
 			UserSettingsForm form = new UserSettingsForm(ctx);
 			form.setBirthday(user.getBirthday());
 			if ("POST".equals(method)) {
@@ -110,6 +114,7 @@ public class Controller {
 				return;
 			}
 		} else if( "global_config".equals(action) && user.isAuthed()) {
+			// サーバ設定画面
 			GlobalConfigEntryForm form = new GlobalConfigEntryForm(ctx);
 			if( "POST".equals(method) ) {
 				form.input(query);
@@ -139,6 +144,7 @@ public class Controller {
 			writeFooter(writer);
 			writer.flush();
 		} else {
+			// それ以外の場合
 			resp.sendRedirect("./");
 		}
 	}

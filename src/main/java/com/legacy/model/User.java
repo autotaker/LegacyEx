@@ -2,6 +2,13 @@ package com.legacy.model;
 
 import java.time.LocalDate;
 
+/**
+ * ユーザを表すオブジェクトです。 <br>
+ * このオブジェクトはセッションに格納されるため、変更はセッション内で有効です。
+ *
+ * @author autotaker
+ *
+ */
 public class User {
 
 	private final String username;
@@ -16,10 +23,18 @@ public class User {
 		return username;
 	}
 
+	/**
+	 * ログイン済みユーザか判定します。
+	 * @return
+	 */
 	public boolean isAuthed() {
 		return true;
 	}
 
+	/**
+	 * ユーザの表示言語を返します。
+	 * @return
+	 */
 	public String getLang() {
 		return lang;
 	}
@@ -28,6 +43,10 @@ public class User {
 		this.lang = lang;
 	}
 
+	/**
+	 * ユーザの生年月日を返します
+	 * @return
+	 */
 	public LocalDate getBirthday() {
 		return birthday;
 	}

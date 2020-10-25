@@ -47,7 +47,7 @@ public class Controller {
 		PrintWriter writer = resp.getWriter();
 		ctx = new Context();
 
-		final User user = Optional.ofNullable((User) session.getAttribute("user"))
+		User user = Optional.ofNullable((User) session.getAttribute("user"))
 				.orElseGet(() -> new AnonymousUser());
 		if( user.isAuthed() ) {
 			ctx.setLang(user.getLang());
@@ -64,17 +64,11 @@ public class Controller {
 			if (user.isAuthed()) {
 				AbsForm form = new LogoutForm(ctx);
 				form.writeForm(writer);
-				writer.println("<a href=\"?action=user_settings\">"
-						+ Dict.get(ctx.getLang(), Message.USER_SETTINGS)
-						+ "</a>");
-				writer.println("<a href=\"?action=global_config\">"
-						+ Dict.get(ctx.getLang(), Message.GLOBAL_CONFIG)
-						+ "</a>");
+				writeActionLink(writer, "user_settings", Message.USER_SETTINGS);
+				writeActionLink(writer, "global_config", Message.GLOBAL_CONFIG);
 			} else {
 				writer.println("<p>");
-				writer.println("<a href=\"?action=login\">"
-						+ Dict.get(ctx.getLang(), Message.LOGIN)
-						+ "</a>");
+				writeActionLink(writer, "login", Message.LOGIN);
 				writer.println("</p>");
 			}
 			writeFooter(writer);
@@ -136,6 +130,12 @@ public class Controller {
 			// それ以外の場合
 			resp.sendRedirect("./");
 		}
+	}
+
+	private void writeActionLink(PrintWriter writer, String actionName, Message actionTitle) {
+		writer.println("<a href=\"?action=" + actionName + "\">"
+				+ Dict.get(ctx.getLang(), actionTitle)
+				+ "</a>");
 	}
 
 	private void writeBackLink(PrintWriter writer) {

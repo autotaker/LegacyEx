@@ -1,6 +1,7 @@
 package com.legacy.form;
 
 import java.io.PrintWriter;
+import java.util.Optional;
 
 import com.legacy.Context;
 import com.legacy.Dict;
@@ -9,8 +10,8 @@ import com.legacy.Query;
 
 public class GlobalConfigEntryForm extends AbsForm {
 	private String key;
-	public String getKey() {
-		return key;
+	public Optional<String> getKey() {
+		return Optional.ofNullable(key);
 	}
 
 	public void setKey(String key) {
@@ -19,8 +20,8 @@ public class GlobalConfigEntryForm extends AbsForm {
 
 	private String value;
 
-	public String getValue() {
-		return value;
+	public Optional<String> getValue() {
+		return Optional.ofNullable(value);
 	}
 
 	public void setValue(String value) {

@@ -18,6 +18,8 @@ import com.legacy.GlobalConfig;
 import com.legacy.Messages;
 import com.legacy.Query;
 import com.legacy.action.AuthAction;
+import com.legacy.action.GlobalConfigAction;
+import com.legacy.action.UserSettingsAction;
 import com.legacy.form.AbsForm;
 import com.legacy.form.GlobalConfigEntryForm;
 import com.legacy.form.LoginForm;
@@ -25,10 +27,18 @@ import com.legacy.form.LogoutForm;
 import com.legacy.form.UserSettingsForm;
 import com.legacy.model.AnonymousUser;
 import com.legacy.model.User;
+import com.legacy.view.GlobalConfigTableView;
 
 public class Controller {
 	/** ロガー */
 	private static final Logger log = LoggerFactory.getLogger(Controller.class);
+	private UserSettingsAction userSettingsAction = new UserSettingsAction();
+	private GlobalConfigTableView globalConfigTableView = new GlobalConfigTableView();
+	private GlobalConfigAction globalConfigAction = new GlobalConfigAction();
+
+	// 数百か所から参照され、削除できない定数フィールド
+	// Controllerをテストハーネスに入れることはできません。
+	public static final String PROBLEMATIC_STATIC_FIELD = GlobalConfig.instance().get("PROBLEMATIC_STATIC_FIELD", "");
 
 	public void dispatch(HttpSession session, String method, Query query, HttpServletResponse resp) throws IOException {
 		String action = query.getAction();
@@ -72,8 +82,7 @@ public class Controller {
 			// ログイン画面
 			LoginForm form = new LoginForm(ctx);
 			form.input(query);
-			Optional<User> newUser = form.getUsername()
-					.flatMap(name -> new AuthAction().login(name));
+			Optional<User> newUser = new AuthAction().login(form);
 			if (newUser.isPresent()) {
 				session.setAttribute("user", newUser.get());
 				resp.sendRedirect("./");
@@ -96,19 +105,14 @@ public class Controller {
 			form.setBirthday(user.getBirthday());
 			if ("POST".equals(method)) {
 				form.input(query);
-				form.getLang().ifPresent(lang -> {
-					user.setLang(lang);
-				});
-				form.getBirthday().ifPresent(birthday -> {
-					user.setBirthday(birthday);
-				});
+				userSettingsAction.changeUserSettings(user, form);
 				resp.sendRedirect("./?action=user_settings");
 				return;
 			} else {
 				writeHeader(writer);
 				writer.println("<h1>" + Dict.get(ctx.getLang(), "USER_SETTINGS", Messages.USER_SETTINGS) + "</h1>");
 				form.writeForm(writer);
-				writer.println("<a href=\"./\">" + Dict.get(ctx.getLang(), "BACK", Messages.BACK) + "</a>");
+				writeBackLink(writer, ctx);
 				writeFooter(writer);
 				writer.flush();
 				return;
@@ -118,35 +122,24 @@ public class Controller {
 			GlobalConfigEntryForm form = new GlobalConfigEntryForm(ctx);
 			if( "POST".equals(method) ) {
 				form.input(query);
-				GlobalConfig.instance().set(form.getKey(), form.getValue());
+				globalConfigAction.update(form);
 			}
 			List<Map.Entry<String,String>> entries = GlobalConfig.instance().loadAll();
 			writeHeader(writer);
-				writer.println("<h1>" + Dict.get(ctx.getLang(), "GLOBAL_CONFIG", Messages.GLOBAL_CONFIG) + "</h1>");
-			writer.println("<table>");
-			writer.println("<thead>");
-			writer.println("<tr>");
-			writer.println("<th>Key</th>");
-			writer.println("<th>Value</th>");
-			writer.println("</tr>");
-			writer.println("</thead>");
-			writer.println("<tbody>");
-			for( Map.Entry<String, String> entry : entries) {
-				writer.println("<tr>");
-				writer.println("<td>" + entry.getKey() + "</td>");
-				writer.println("<td>" + entry.getValue() + "</td>");
-				writer.println("</tr>");
-			}
-			writer.println("</tbody>");
-			writer.println("</table>");
+			writer.println("<h1>" + Dict.get(ctx.getLang(), "GLOBAL_CONFIG", Messages.GLOBAL_CONFIG) + "</h1>");
+			globalConfigTableView.writeTable(writer, entries);
 			form.writeForm(writer);
-			writer.println("<a href=\"./\">" + Dict.get(ctx.getLang(), "BACK", Messages.BACK) + "</a>");
+			writeBackLink(writer, ctx);
 			writeFooter(writer);
 			writer.flush();
 		} else {
 			// それ以外の場合
 			resp.sendRedirect("./");
 		}
+	}
+
+	private void writeBackLink(PrintWriter writer, Context ctx) {
+		writer.println("<a href=\"./\">" + Dict.get(ctx.getLang(), "BACK", Messages.BACK) + "</a>");
 	}
 
 	private void writeFooter(PrintWriter writer) {

@@ -19,7 +19,8 @@ public enum Message {
 	BACK("Back"),
 	GLOBAL_CONFIG("Global Configurations"),
 	BIRTHDAY("Birthday"),
-	SAVE("Save");
+	SAVE("Save"),
+	HOME("Home");
 
 	private String message;
 

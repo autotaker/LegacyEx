@@ -35,6 +35,7 @@ public class Controller {
 	private UserSettingsAction userSettingsAction = new UserSettingsAction();
 	private GlobalConfigTableView globalConfigTableView = new GlobalConfigTableView();
 	private GlobalConfigAction globalConfigAction = new GlobalConfigAction();
+	private Context ctx;
 
 	// 数百か所から参照され、削除できない定数フィールド
 	// Controllerをテストハーネスに入れることはできません。
@@ -44,7 +45,8 @@ public class Controller {
 		String action = query.getAction();
 		resp.setContentType("text/html; charset=UTF-8");
 		PrintWriter writer = resp.getWriter();
-		Context ctx = new Context();
+		ctx = new Context();
+
 		final User user = Optional.ofNullable((User) session.getAttribute("user"))
 				.orElseGet(() -> new AnonymousUser());
 		if( user.isAuthed() ) {
@@ -56,7 +58,7 @@ public class Controller {
 		log.debug("dispatch action = {} method = {}", action, method);
 		if ("*".equals(action)) {
 			// ホーム画面
-			writeHeader(writer);
+			writeHeader(writer, Message.HOME);
 			String greeting = "Hi " + user.getUsername() + " san";
 			writer.println("<h1>" + greeting + "</h1>");
 			if (user.isAuthed()) {
@@ -88,7 +90,7 @@ public class Controller {
 				resp.sendRedirect("./");
 				return;
 			} else {
-				writeHeader(writer);
+				writeHeader(writer, Message.LOGIN);
 				form.writeForm(writer);
 				writeFooter(writer);
 				writer.flush();
@@ -109,10 +111,9 @@ public class Controller {
 				resp.sendRedirect("./?action=user_settings");
 				return;
 			} else {
-				writeHeader(writer);
-				writer.println("<h1>" + Dict.get(ctx.getLang(),  Message.USER_SETTINGS) + "</h1>");
+				writeHeader(writer, Message.USER_SETTINGS);
 				form.writeForm(writer);
-				writeBackLink(writer, ctx);
+				writeBackLink(writer);
 				writeFooter(writer);
 				writer.flush();
 				return;
@@ -125,11 +126,10 @@ public class Controller {
 				globalConfigAction.update(form);
 			}
 			List<Map.Entry<String,String>> entries = GlobalConfig.instance().loadAll();
-			writeHeader(writer);
-			writer.println("<h1>" + Dict.get(ctx.getLang(),  Message.GLOBAL_CONFIG) + "</h1>");
+			writeHeader(writer, Message.GLOBAL_CONFIG);
 			globalConfigTableView.writeTable(writer, entries);
 			form.writeForm(writer);
-			writeBackLink(writer, ctx);
+			writeBackLink(writer);
 			writeFooter(writer);
 			writer.flush();
 		} else {
@@ -138,7 +138,7 @@ public class Controller {
 		}
 	}
 
-	private void writeBackLink(PrintWriter writer, Context ctx) {
+	private void writeBackLink(PrintWriter writer) {
 		writer.println("<a href=\"./\">" + Dict.get(ctx.getLang(),  Message.BACK) + "</a>");
 	}
 
@@ -147,14 +147,15 @@ public class Controller {
 		writer.println("</html>");
 	}
 
-	private void writeHeader(PrintWriter writer) {
+	private void writeHeader(PrintWriter writer, Message title) {
 		writer.println("<!DOCTYPE html>");
 		writer.println("<html>");
 		writer.println("<head>");
 		writer.println("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
-		writer.println("<title>Hello</title>");
+		writer.println("<title>" + Dict.get(ctx.getLang(), title) + "</title>");
 		writer.println("</head>");
 		writer.println("<body>");
+		writer.println("<h1>" + Dict.get(ctx.getLang(),  title) + "</h1>");
 	}
 
 }

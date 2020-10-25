@@ -8,6 +8,7 @@ create table if not exists GLOBAL_CONFIG
  config_value TEXT NOT NULL);
 merge into DICT KEY(dict_lang, dict_key)
 values
+('JA', 'HOME', 'ホーム'),
 ('JA', 'LOGIN', 'ログイン'),
 ('JA', 'LOGOUT', 'ログアウト'),
 ('JA', 'USERNAME', 'ユーザ名'),

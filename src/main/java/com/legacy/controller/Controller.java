@@ -36,6 +36,7 @@ public class Controller {
 	private GlobalConfigTableView globalConfigTableView = new GlobalConfigTableView();
 	private GlobalConfigAction globalConfigAction = new GlobalConfigAction();
 	private Context ctx;
+	private PrintWriter writer;
 
 	// 数百か所から参照され、削除できない定数フィールド
 	// Controllerをテストハーネスに入れることはできません。
@@ -44,7 +45,7 @@ public class Controller {
 	public void dispatch(HttpSession session, String method, Query query, HttpServletResponse resp) throws IOException {
 		String action = query.getAction();
 		resp.setContentType("text/html; charset=UTF-8");
-		PrintWriter writer = resp.getWriter();
+		writer = resp.getWriter();
 		ctx = new Context();
 
 		User user = Optional.ofNullable((User) session.getAttribute("user"))
@@ -58,20 +59,20 @@ public class Controller {
 		log.debug("dispatch action = {} method = {}", action, method);
 		if ("*".equals(action)) {
 			// ホーム画面
-			writeHeader(writer, Message.HOME);
+			writeHeader(Message.HOME);
 			String greeting = "Hi " + user.getUsername() + " san";
 			writer.println("<h1>" + greeting + "</h1>");
 			if (user.isAuthed()) {
 				AbsForm form = new LogoutForm(ctx);
 				form.writeForm(writer);
-				writeActionLink(writer, "user_settings", Message.USER_SETTINGS);
-				writeActionLink(writer, "global_config", Message.GLOBAL_CONFIG);
+				writeActionLink("user_settings", Message.USER_SETTINGS);
+				writeActionLink("global_config", Message.GLOBAL_CONFIG);
 			} else {
 				writer.println("<p>");
-				writeActionLink(writer, "login", Message.LOGIN);
+				writeActionLink("login", Message.LOGIN);
 				writer.println("</p>");
 			}
-			writeFooter(writer);
+			writeFooter();
 			writer.flush();
 			return;
 		} else if ("login".equals(action) && !user.isAuthed()) {
@@ -84,9 +85,9 @@ public class Controller {
 				resp.sendRedirect("./");
 				return;
 			} else {
-				writeHeader(writer, Message.LOGIN);
+				writeHeader(Message.LOGIN);
 				form.writeForm(writer);
-				writeFooter(writer);
+				writeFooter();
 				writer.flush();
 				return;
 			}
@@ -105,10 +106,10 @@ public class Controller {
 				resp.sendRedirect("./?action=user_settings");
 				return;
 			} else {
-				writeHeader(writer, Message.USER_SETTINGS);
+				writeHeader(Message.USER_SETTINGS);
 				form.writeForm(writer);
-				writeBackLink(writer);
-				writeFooter(writer);
+				writeBackLink();
+				writeFooter();
 				writer.flush();
 				return;
 			}
@@ -120,11 +121,11 @@ public class Controller {
 				globalConfigAction.update(form);
 			}
 			List<Map.Entry<String,String>> entries = GlobalConfig.instance().loadAll();
-			writeHeader(writer, Message.GLOBAL_CONFIG);
+			writeHeader(Message.GLOBAL_CONFIG);
 			globalConfigTableView.writeTable(writer, entries);
 			form.writeForm(writer);
-			writeBackLink(writer);
-			writeFooter(writer);
+			writeBackLink();
+			writeFooter();
 			writer.flush();
 		} else {
 			// それ以外の場合
@@ -132,22 +133,22 @@ public class Controller {
 		}
 	}
 
-	private void writeActionLink(PrintWriter writer, String actionName, Message actionTitle) {
+	private void writeActionLink(String actionName, Message actionTitle) {
 		writer.println("<a href=\"?action=" + actionName + "\">"
 				+ Dict.get(ctx.getLang(), actionTitle)
 				+ "</a>");
 	}
 
-	private void writeBackLink(PrintWriter writer) {
+	private void writeBackLink() {
 		writer.println("<a href=\"./\">" + Dict.get(ctx.getLang(),  Message.BACK) + "</a>");
 	}
 
-	private void writeFooter(PrintWriter writer) {
+	private void writeFooter() {
 		writer.println("</body>");
 		writer.println("</html>");
 	}
 
-	private void writeHeader(PrintWriter writer, Message title) {
+	private void writeHeader(Message title) {
 		writer.println("<!DOCTYPE html>");
 		writer.println("<html>");
 		writer.println("<head>");

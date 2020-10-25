@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Strings;
 import com.legacy.Context;
 import com.legacy.Dict;
-import com.legacy.Messages;
+import com.legacy.Message;
 import com.legacy.Query;
 
 public class UserSettingsForm extends AbsForm {
@@ -28,18 +28,18 @@ public class UserSettingsForm extends AbsForm {
 	public UserSettingsForm(Context ctx) {
 		super(ctx);
 		setAction("user_settings");
-		setSubmitValue(Dict.get(ctx.getLang(), "SAVE", Messages.SAVE));
+		setSubmitValue(Dict.get(ctx.getLang(), Message.SAVE));
 		this.lang = ctx.getLang();
 	}
 
 	@Override
 	protected void writeFormImpl(PrintWriter writer) {
 		writer.println("<p>");
-		writer.println("<label>" + Dict.get(context.getLang(), "LANGUAGE", Messages.LANGUAGE) + ":<label>");
+		writer.println("<label>" + Dict.get(context.getLang(), Message.LANGUAGE) + ":<label>");
 		writer.println("<select name=\"user.lang\">");
 		String[][] languages = new String[][] {
-			{ "JA", Dict.get(context.getLang(), "LANG_JAPANESE", Messages.LANG_JAPANESE) },
-			{ "EN", Dict.get(context.getLang(), "LANG_ENGLISH", Messages.LANG_ENGLISH) },
+			{ "JA", Dict.get(context.getLang(), Message.LANG_JAPANESE) },
+			{ "EN", Dict.get(context.getLang(), Message.LANG_ENGLISH) },
 		};
 		for( String[] language : languages) {
 			String opt = language[0].equals(lang) ? " selected " : "";
@@ -48,7 +48,7 @@ public class UserSettingsForm extends AbsForm {
 		writer.println("</select>");
 		writer.println("</p>");
 		writer.println("<p>");
-		writer.println("<label>" + Dict.get(context.getLang(), "BIRTHDAY", Messages.BIRTHDAY) + ":<label>");
+		writer.println("<label>" + Dict.get(context.getLang(), Message.BIRTHDAY) + ":<label>");
 		String birthdayStr = DEFAULT_BIRTHDAY;
 		if( birthday != null ) {
 			birthdayStr = birthday.format(DateTimeFormatter.ISO_LOCAL_DATE);

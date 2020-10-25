@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import com.legacy.Context;
 import com.legacy.Dict;
-import com.legacy.Messages;
+import com.legacy.Message;
 import com.legacy.Query;
 
 public class GlobalConfigEntryForm extends AbsForm {
@@ -31,7 +31,7 @@ public class GlobalConfigEntryForm extends AbsForm {
 	public GlobalConfigEntryForm(Context ctx) {
 		super(ctx);
 		setAction("global_config");
-		setSubmitValue(Dict.get(ctx.getLang(), "SAVE", Messages.SAVE));
+		setSubmitValue(Dict.get(ctx.getLang(), Message.SAVE));
 	}
 
 	@Override

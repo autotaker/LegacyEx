@@ -43,41 +43,38 @@ public class Dict {
 	}
 
 	/**
-	 * {@code key}と{@code lang}に対応するDICTテーブルのエントリーを返します。 <br>
-	 * 取得ができなかった場合は{@code defaultMessage}を返します。
-	 * @see com.legacy.Messages
+	 * {@code message.toString()}と{@code lang}に対応するDICTテーブルのエントリーを返します。 <br>
+	 * 取得ができなかった場合は{@code message.defaultMessage()}を返します。
+	 * @see com.legacy.Message
 	 *
 	 * @param lang
-	 * @param key
-	 * @param defaultMessage Messagesクラスの定数を使用してください。
+	 * @param message
 	 * @return
 	 */
-	public static String get(String lang, String key, String defaultMessage) {
-		String msg = globalDict.get(key + ":" + lang);
+	public static String get(String lang, Message message) {
+		String msg = globalDict.get(message.toString() + ":" + lang);
 		if (msg == null) {
-			return defaultMessage;
+			return message.defaultMessage();
 		} else {
 			return msg;
 		}
 	}
 
 	/**
-	 * {@code key}と{@code lang}に対応するDICTテーブルのエントリーを返します。<br>
+	 * {@code message.toString()}と{@code lang}に対応するDICTテーブルのエントリーを返します。 <br>
+	 * 取得ができなかった場合は{@code message.defaultMessage()}を返します。
 	 * エントリーはプレースホルダー({0},{1})付きである必要があり、
 	 * プレースホルダーに引数で渡したオブジェクトが置換されます。
-	 * @see com.legacy.Messages
+	 * @see com.legacy.Message
 	 *
 	 * @param lang
-	 * @param key
-	 * @param defaultMessage Messagesクラスの定数を使用してください。
+	 * @param message
 	 * @param args プレースホルダーのオブジェクト
 	 * @return
 	 *
 	 */
-	public static String get(String lang, String key, String defaultMessage, Object... args) {
-		String message = get(lang, key, defaultMessage);
-		return MessageFormat.format(message, args);
-
+	public static String get(String lang, Message message, Object... args) {
+		return MessageFormat.format(get(lang,  message), args);
 	}
 
 }

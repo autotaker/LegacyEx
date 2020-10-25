@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.legacy.Context;
 import com.legacy.Dict;
 import com.legacy.GlobalConfig;
-import com.legacy.Messages;
+import com.legacy.Message;
 import com.legacy.Query;
 import com.legacy.action.AuthAction;
 import com.legacy.action.GlobalConfigAction;
@@ -63,15 +63,15 @@ public class Controller {
 				AbsForm form = new LogoutForm(ctx);
 				form.writeForm(writer);
 				writer.println("<a href=\"?action=user_settings\">"
-						+ Dict.get(ctx.getLang(), "USER_SETTINGS", Messages.USER_SETTINGS)
+						+ Dict.get(ctx.getLang(), Message.USER_SETTINGS)
 						+ "</a>");
 				writer.println("<a href=\"?action=global_config\">"
-						+ Dict.get(ctx.getLang(), "GLOBAL_CONFIG", Messages.GLOBAL_CONFIG)
+						+ Dict.get(ctx.getLang(), Message.GLOBAL_CONFIG)
 						+ "</a>");
 			} else {
 				writer.println("<p>");
 				writer.println("<a href=\"?action=login\">"
-						+ Dict.get(ctx.getLang(), "LOGIN", Messages.LOGIN)
+						+ Dict.get(ctx.getLang(), Message.LOGIN)
 						+ "</a>");
 				writer.println("</p>");
 			}
@@ -110,7 +110,7 @@ public class Controller {
 				return;
 			} else {
 				writeHeader(writer);
-				writer.println("<h1>" + Dict.get(ctx.getLang(), "USER_SETTINGS", Messages.USER_SETTINGS) + "</h1>");
+				writer.println("<h1>" + Dict.get(ctx.getLang(),  Message.USER_SETTINGS) + "</h1>");
 				form.writeForm(writer);
 				writeBackLink(writer, ctx);
 				writeFooter(writer);
@@ -126,7 +126,7 @@ public class Controller {
 			}
 			List<Map.Entry<String,String>> entries = GlobalConfig.instance().loadAll();
 			writeHeader(writer);
-			writer.println("<h1>" + Dict.get(ctx.getLang(), "GLOBAL_CONFIG", Messages.GLOBAL_CONFIG) + "</h1>");
+			writer.println("<h1>" + Dict.get(ctx.getLang(),  Message.GLOBAL_CONFIG) + "</h1>");
 			globalConfigTableView.writeTable(writer, entries);
 			form.writeForm(writer);
 			writeBackLink(writer, ctx);
@@ -139,7 +139,7 @@ public class Controller {
 	}
 
 	private void writeBackLink(PrintWriter writer, Context ctx) {
-		writer.println("<a href=\"./\">" + Dict.get(ctx.getLang(), "BACK", Messages.BACK) + "</a>");
+		writer.println("<a href=\"./\">" + Dict.get(ctx.getLang(),  Message.BACK) + "</a>");
 	}
 
 	private void writeFooter(PrintWriter writer) {

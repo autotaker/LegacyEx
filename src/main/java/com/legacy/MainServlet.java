@@ -80,7 +80,11 @@ public class MainServlet extends HttpServlet {
 		HttpSession session = req.getSession();
 		String method = req.getMethod();
 		Query query = new Query(req.getParameterMap());
-		controller.dispatch(session, method, query, resp);
+		try {
+			controller.dispatch(session, method, query, resp);
+		} catch(Throwable e) {
+			log.error("Service Exception", e);
+		}
 	}
 
 }

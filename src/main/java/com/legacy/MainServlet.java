@@ -84,6 +84,7 @@ public class MainServlet extends HttpServlet {
 			controller.dispatch(session, method, query, resp);
 		} catch(Throwable e) {
 			log.error("Service Exception", e);
+			throw e;
 		}
 	}
 

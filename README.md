@@ -146,7 +146,7 @@ staticメソッドを多用している場合、そのクラスのWrapperクラ�
    DictWrapper dict;
   
   
-   public setUp() {
+   public void setUp() {
      it = new SomeClass(it);
    }
    ```

@@ -78,3 +78,76 @@ public void someMethod(..) {
      GlobalConfig.setInstance(null);
    }
    ```
+
+### static apiのwrap
+staticメソッドを多用している場合、そのクラスのWrapperクラスを作成しましょう。
+
+#### Wrapクラスの作成
+1. 元々のクラス名+Wrapperの名前のクラスを作成する
+   
+   ```java
+   public class DictWrapper {
+   }
+   ```
+
+2. コピー元メソッド宣言をコピーし、staticを外す
+   
+   ```java
+   
+   public String get(String lang, Message message) {
+   }
+   ```
+   
+3. コピー元メソッドをそのまま呼び出す
+
+   ```java
+   public String get(String lang, Message message) {
+     return Dict.get(lang, message);  
+   }
+   ```
+   
+#### Wrapクラスの利用 (Dependency Injection)
+1. 利用クラスのフィールドにWrapクラスのインスタンスを保持する.
+
+   `final`をつけておくと初期化忘れを防げので可能な限りつける。
+   
+   ```java
+   public class SomeClass {
+     private final DictWrapper dict;
+   }
+   ```
+
+2. コンストラクタの引数でWrapperクラスを受け取れるようにする。
+
+   ```java
+   public SomeClass(DictWrapper dict) {
+     this.dict = dict;
+   }
+   ```
+
+3. デフォルトコンストラクタではデフォルトのインスタンスで初期化する
+
+   ```java
+   public SomeClass() {
+     this(new DictWrapper());
+   }
+   ```
+   
+   こうすることでProductionコードでは依存クラスの初期化をしなくて良くなる。
+   
+   依存関係が複雑な場合はDIコンテナを利用する。
+   
+4. テスト時にMockインスタンスに差し替える。
+
+   ```java
+   SomeClass it;
+  
+   @Mock
+   DictWrapper dict;
+  
+  
+   public setUp() {
+     it = new SomeClass(it);
+   }
+   ```
+   

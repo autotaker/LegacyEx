@@ -109,7 +109,7 @@ staticメソッドを多用している場合、そのクラスのWrapperクラ�
 #### Wrapクラスの利用 (Dependency Injection)
 1. 利用クラスのフィールドにWrapクラスのインスタンスを保持する.
 
-   `final`をつけておくと初期化忘れを防げので可能な限りつける。
+   `final`をつけておくと初期化忘れを防げるので可能な限りつける。
    
    ```java
    public class SomeClass {

@@ -27,7 +27,9 @@ import com.legacy.form.LogoutForm;
 import com.legacy.form.UserSettingsForm;
 import com.legacy.model.AnonymousUser;
 import com.legacy.model.User;
+import com.legacy.view.DefaultGreetingView;
 import com.legacy.view.GlobalConfigTableView;
+import com.legacy.view.GreetingView;
 
 public class Controller {
 	/** ロガー */
@@ -36,6 +38,7 @@ public class Controller {
 	private GlobalConfigTableView globalConfigTableView = new GlobalConfigTableView();
 	private GlobalConfigAction globalConfigAction = new GlobalConfigAction();
 	private Context ctx;
+	private final GreetingView greetingView = new DefaultGreetingView();
 
 	// 数百か所から参照され、削除できない定数フィールド
 	// Controllerをテストハーネスに入れることはできません。
@@ -47,9 +50,9 @@ public class Controller {
 		PrintWriter writer = resp.getWriter();
 		ctx = new Context();
 
-		User user = Optional.ofNullable((User) session.getAttribute("user"))
+		User user = Optional.ofNullable((User)session.getAttribute("user"))
 				.orElseGet(() -> new AnonymousUser());
-		if( user.isAuthed() ) {
+		if (user.isAuthed()) {
 			ctx.setLang(user.getLang());
 		} else {
 			ctx.setLang(GlobalConfig.instance().get("DEFAULT_LANGUAGE", "JA"));
@@ -59,8 +62,7 @@ public class Controller {
 		if ("*".equals(action)) {
 			// ホーム画面
 			writeHeader(writer, Message.HOME);
-			String greeting = "Hi " + user.getUsername() + " san";
-			writer.println("<h1>" + greeting + "</h1>");
+			greetingView.writeGreeting(writer, user);
 			if (user.isAuthed()) {
 				AbsForm form = new LogoutForm(ctx);
 				form.writeForm(writer);
@@ -112,14 +114,14 @@ public class Controller {
 				writer.flush();
 				return;
 			}
-		} else if( "global_config".equals(action) && user.isAuthed()) {
+		} else if ("global_config".equals(action) && user.isAuthed()) {
 			// サーバ設定画面
 			GlobalConfigEntryForm form = new GlobalConfigEntryForm(ctx);
-			if( "POST".equals(method) ) {
+			if ("POST".equals(method)) {
 				form.input(query);
 				globalConfigAction.update(form);
 			}
-			List<Map.Entry<String,String>> entries = GlobalConfig.instance().loadAll();
+			List<Map.Entry<String, String>> entries = GlobalConfig.instance().loadAll();
 			writeHeader(writer, Message.GLOBAL_CONFIG);
 			globalConfigTableView.writeTable(writer, entries);
 			form.writeForm(writer);
@@ -139,7 +141,7 @@ public class Controller {
 	}
 
 	private void writeBackLink(PrintWriter writer) {
-		writer.println("<a href=\"./\">" + Dict.get(ctx.getLang(),  Message.BACK) + "</a>");
+		writer.println("<a href=\"./\">" + Dict.get(ctx.getLang(), Message.BACK) + "</a>");
 	}
 
 	private void writeFooter(PrintWriter writer) {
@@ -155,7 +157,7 @@ public class Controller {
 		writer.println("<title>" + Dict.get(ctx.getLang(), title) + "</title>");
 		writer.println("</head>");
 		writer.println("<body>");
-		writer.println("<h1>" + Dict.get(ctx.getLang(),  title) + "</h1>");
+		writer.println("<h1>" + Dict.get(ctx.getLang(), title) + "</h1>");
 	}
 
 }

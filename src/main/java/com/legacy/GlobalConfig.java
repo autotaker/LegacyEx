@@ -19,13 +19,15 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
+
 /**
  * サーバ設定を管理するクラスです。
  * Singleton Patternを適用しています。
  * @author autotaker
  *
  */
-public final class GlobalConfig {
+public class GlobalConfig {
 	private static final String UPDATE_ONE_SQL = "MERGE INTO GLOBAL_CONFIG KEY(config_key) VALUES (?, ?)";
 	private static final String SELECT_MANY_SQL = "SELECT config_key, config_value FROM GLOBAL_CONFIG ORDER BY config_key ASC";
 	private static final String SELECT_ONE_SQL = "SELECT config_key, config_value FROM GLOBAL_CONFIG WHERE config_key = ?";
@@ -136,5 +138,10 @@ public final class GlobalConfig {
 			throw new RuntimeException(e);
 		}
 
+	}
+
+	@VisibleForTesting
+	public static void setInstance(GlobalConfig config) {
+		_instance = config;
 	}
 }

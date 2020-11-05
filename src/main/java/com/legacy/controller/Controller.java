@@ -27,9 +27,8 @@ import com.legacy.form.LogoutForm;
 import com.legacy.form.UserSettingsForm;
 import com.legacy.model.AnonymousUser;
 import com.legacy.model.User;
-import com.legacy.view.DefaultGreetingView;
 import com.legacy.view.GlobalConfigTableView;
-import com.legacy.view.GreetingView;
+import com.legacy.view.GreetingViewStrategy;
 
 public class Controller {
 	/** ロガー */
@@ -38,7 +37,7 @@ public class Controller {
 	private GlobalConfigTableView globalConfigTableView = new GlobalConfigTableView();
 	private GlobalConfigAction globalConfigAction = new GlobalConfigAction();
 	private Context ctx;
-	private final GreetingView greetingView = new DefaultGreetingView();
+	private final GreetingViewStrategy greetingViewStrategy = new GreetingViewStrategy();
 
 	// 数百か所から参照され、削除できない定数フィールド
 	// Controllerをテストハーネスに入れることはできません。
@@ -62,7 +61,7 @@ public class Controller {
 		if ("*".equals(action)) {
 			// ホーム画面
 			writeHeader(writer, Message.HOME);
-			greetingView.writeGreeting(writer, user);
+			greetingViewStrategy.create().writeGreeting(writer, user);
 			if (user.isAuthed()) {
 				AbsForm form = new LogoutForm(ctx);
 				form.writeForm(writer);

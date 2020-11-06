@@ -1,7 +1,7 @@
 package com.legacy.view;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.*;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -27,27 +27,29 @@ public class BirthdayGreetingViewTest {
 
 	@Test
 	public void writeGreeting_WriteHappyBirthday_IfDateIsUsersBirthday() {
-		LocalDate now = LocalDate.of(2020, 11, 2);
-
-		it.writeGreeting(new PrintWriter(writer), user, now);
+		it.writeGreeting(new PrintWriter(writer), user, LocalDate.of(2020, 11, 2));
 
 		assertThat(writer.toString().trim(), is("<h1>Happy Birthday test san</h1>"));
 	}
 
 	@Test
 	public void writeGreeting_WriteNiceday_IfDateIsNotUsersBirthday() {
-		LocalDate now = LocalDate.of(2020, 11, 3);
-
-		it.writeGreeting(new PrintWriter(writer), user, now);
+		it.writeGreeting(new PrintWriter(writer), user, LocalDate.of(2020, 11, 3));
 
 		assertThat(writer.toString().trim(), is("<h1>Nice day test san</h1>"));
 	}
 
 	@Test
 	public void writeGreeting_WriteNiceday_IfDateIsNotUsersBirthday_Month() {
-		LocalDate now = LocalDate.of(2020, 10, 3);
+		it.writeGreeting(new PrintWriter(writer), user, LocalDate.of(2020, 10, 3));
 
-		it.writeGreeting(new PrintWriter(writer), user, now);
+		assertThat(writer.toString().trim(), is("<h1>Nice day test san</h1>"));
+	}
+
+	@Test
+	public void writeGreeting_WriteNiceday_IfDateIsNull() {
+		user.setBirthday(null);
+		it.writeGreeting(new PrintWriter(writer), user, LocalDate.of(2020, 11, 6));
 
 		assertThat(writer.toString().trim(), is("<h1>Nice day test san</h1>"));
 	}

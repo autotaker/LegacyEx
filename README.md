@@ -60,7 +60,7 @@ public void someMethod(..) {
    @Mock
    GlobalConfig globalConfig;
    
-   @Before
+   @BeforeEach
    public void setUp() {
      ...
      GlobalConfig.setInstance(globalConfig);
@@ -73,7 +73,7 @@ public void someMethod(..) {
    
    ```java
    
-   @After
+   @AfterEach
    public void tearDown() {
      GlobalConfig.setInstance(null);
    }
@@ -140,14 +140,12 @@ staticメソッドを多用している場合、そのクラスのWrapperクラ�
 4. テスト時にMockインスタンスに差し替える。
 
    ```java
+   @InjectMocks
    SomeClass it;
   
    @Mock
    DictWrapper dict;
   
   
-   public void setUp() {
-     it = new SomeClass(it);
-   }
    ```
    

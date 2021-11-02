@@ -2,22 +2,24 @@ package com.legacy.example;
 
 import static org.mockito.Mockito.*;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoSettings;
 
-@RunWith(MockitoJUnitRunner.class)
+
+@MockitoSettings
 public class StaticAPIUserRefactoredTest {
 	@Mock
 	StaticAPIWrapper staticAPI;
 
+	@InjectMocks
 	StaticAPIUserRefactored it;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
-		it = new StaticAPIUserRefactored(staticAPI);
+	//	it = new StaticAPIUserRefactored(staticAPI);
 	}
 
 	@Test
